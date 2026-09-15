@@ -2,7 +2,11 @@ use crate::diagnostic::{Diagnostic, Severity};
 use std::path::Path;
 
 pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
-    check_snake_case(filename, content)
+    let mut diagnostics = Vec::new();
+
+    diagnostics.extend(check_snake_case(filename, content));
+
+    diagnostics
 }
 
 fn check_snake_case(filename: &str, _content: &str) -> Vec<Diagnostic> {

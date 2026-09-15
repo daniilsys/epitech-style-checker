@@ -1,7 +1,11 @@
 use crate::diagnostic::{Diagnostic, Severity};
 
 pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
-    check_goto(filename, content)
+    let mut diagnostics = Vec::new();
+
+    diagnostics.extend(check_goto(filename, content));
+
+    diagnostics
 }
 
 fn check_goto(filename: &str, content: &str) -> Vec<Diagnostic> {

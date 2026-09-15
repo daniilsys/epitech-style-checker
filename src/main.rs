@@ -1,7 +1,7 @@
 mod checker;
 mod diagnostic;
+pub mod parser;
 mod rules;
-
 use std::fs;
 use std::path::Path;
 

@@ -4,4 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tree-sitter = "0.24"
+tree-sitter-c = "0.23"
 regex = "1"

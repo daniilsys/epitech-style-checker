@@ -1,12 +1,14 @@
 use crate::diagnostic::{Diagnostic, Severity};
 
 pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
-    check_file_end(filename, content)
+    let mut diagnostics = Vec::new();
+
+    diagnostics.extend(check_file_end(filename, content));
+
+    diagnostics
 }
 
 fn check_file_end(filename: &str, content: &str) -> Vec<Diagnostic> {
-    let lines: Vec<&str> = content.lines().collect();
-
     if !content.ends_with('\n') {
         let line_count = content.lines().count().max(1);
         return vec![Diagnostic {
