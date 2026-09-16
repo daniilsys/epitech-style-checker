@@ -21,3 +21,22 @@ fn check_file_end(filename: &str, content: &str) -> Vec<Diagnostic> {
     }
     vec![]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn c_a3_triggers_when_no_trailing_newline() {
+        let content = "int main(void)\n{\n    return 0;\n}";
+        let diags = check("test.c", content);
+        assert!(diags.iter().any(|d| d.code == "C-A3"));
+    }
+
+    #[test]
+    fn c_a3_does_not_trigger_with_trailing_newline() {
+        let content = "int main(void)\n{\n    return 0;\n}\n";
+        let diags = check("test.c", content);
+        assert!(!diags.iter().any(|d| d.code == "C-A3"));
+    }
+}
