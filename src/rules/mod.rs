@@ -25,3 +25,7 @@ pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
 
     diagnostics
 }
+
+pub fn check_project(files: &[(String, String)]) -> Vec<Diagnostic> {
+    c_a::check_static_usage(files)
+}

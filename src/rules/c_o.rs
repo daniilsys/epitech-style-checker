@@ -10,8 +10,24 @@ pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
     diagnostics.extend(check_snake_case(filename, content));
     diagnostics.extend(check_delivery_files(filename, content));
     diagnostics.extend(check_functions_count(filename, content));
+    diagnostics.extend(check_file_extension(filename, content));
 
     diagnostics
+}
+
+fn check_file_extension(filename: &str, _content: &str) -> Vec<Diagnostic> {
+    if let Some(ext) = Path::new(filename).extension().and_then(|e| e.to_str()) {
+        if ext != "c" && ext != "h" {
+            return vec![Diagnostic {
+                file: filename.to_string(),
+                line: 1,
+                severity: Severity::Major,
+                code: "C-O2".to_string(),
+                message: "Sources must only have .c or .h extensions".to_string(),
+            }];
+        }
+    }
+    vec![]
 }
 
 fn check_snake_case(filename: &str, _content: &str) -> Vec<Diagnostic> {
@@ -140,8 +156,7 @@ fn check_functions_count(filename: &str, content: &str) -> Vec<Diagnostic> {
             .child_by_field_name("body")
             .map(|b| b.start_byte())
             .unwrap_or(node.start_byte());
-        let prefix =
-            std::str::from_utf8(&bytes[node.start_byte()..declarator_start]).unwrap_or("");
+        let prefix = std::str::from_utf8(&bytes[node.start_byte()..declarator_start]).unwrap_or("");
         let is_static = prefix.contains("static");
 
         function_count += 1;
@@ -211,7 +226,10 @@ mod tests {
     fn c_o3_triggers_on_too_many_functions() {
         let mut content = String::new();
         for i in 0..11 {
-            content.push_str(&format!("static int f{}(void)\n{{\n    return 0;\n}}\n\n", i));
+            content.push_str(&format!(
+                "static int f{}(void)\n{{\n    return 0;\n}}\n\n",
+                i
+            ));
         }
         let diags = check_functions_count("test.c", &content);
         assert!(diags.iter().any(|d| d.code == "C-O3"));
@@ -232,5 +250,25 @@ mod tests {
         let content = "int f(void)\n{\n    return 0;\n}\n\nint g(void)\n{\n    return 0;\n}\n";
         let diags = check_functions_count("test.c", content);
         assert!(!diags.iter().any(|d| d.code == "C-O3"));
+    }
+
+    #[test]
+    fn c_o2_triggers_on_bad_extension() {
+        let diags = check_file_extension("main.cpp", "");
+        assert!(diags.iter().any(|d| d.code == "C-O2"));
+    }
+
+    #[test]
+    fn c_o2_does_not_trigger_on_c_or_h_extension() {
+        let diags = check_file_extension("main.c", "");
+        assert!(!diags.iter().any(|d| d.code == "C-O2"));
+        let diags = check_file_extension("main.h", "");
+        assert!(!diags.iter().any(|d| d.code == "C-O2"));
+    }
+
+    #[test]
+    fn c_o2_does_not_trigger_on_no_extension() {
+        let diags = check_file_extension("Makefile", "");
+        assert!(!diags.iter().any(|d| d.code == "C-O2"));
     }
 }

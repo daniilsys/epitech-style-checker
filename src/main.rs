@@ -15,6 +15,7 @@ fn main() {
 
     let files = collect_c_files(path);
     let mut total = 0;
+    let mut file_contents: Vec<(String, String)> = Vec::new();
 
     for file in &files {
         let diagnostics = checker::check_file(file);
@@ -25,6 +26,18 @@ fn main() {
             );
             total += 1;
         }
+        if let Ok(content) = fs::read_to_string(file) {
+            file_contents.push((file.to_string_lossy().to_string(), content));
+        }
+    }
+
+    let project_diagnostics = rules::check_project(&file_contents);
+    for d in &project_diagnostics {
+        println!(
+            "{}: {}:{}: {:?}:{}",
+            d.file, d.line, d.code, d.severity, d.message
+        );
+        total += 1;
     }
 
     println!("\n{} error(s) found", total);
