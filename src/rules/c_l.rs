@@ -57,7 +57,7 @@ fn walk_l1(node: &Node, filename: &str, diagnostics: &mut Vec<Diagnostic>) {
         let mut cursor = node.walk();
         let statements: Vec<Node> = node
             .children(&mut cursor)
-            .filter(|c| c.kind() != "{" && c.kind() != "}")
+            .filter(|c| c.kind() != "{" && c.kind() != "}" && c.kind() != "comment")
             .collect();
         for i in 1..statements.len() {
             if statements[i].start_position().row == statements[i - 1].end_position().row {
@@ -170,7 +170,7 @@ fn check_spaces(filename: &str, content: &str) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
 
     let keyword_re = KEYWORD_SPACE_RE.get_or_init(|| {
-        Regex::new(r"\b(if|switch|case|for|do|while|return|struct)(\(|;|\{)").unwrap()
+        Regex::new(r"\b(if|switch|case|for|do|while|return|struct)(\(|\{)").unwrap()
     });
     let comma_re = COMMA_SPACE_RE.get_or_init(|| Regex::new(r",[^\s\n\)]").unwrap());
     let space_before_re =
@@ -183,7 +183,9 @@ fn check_spaces(filename: &str, content: &str) -> Vec<Diagnostic> {
 
     for (i, line) in content.lines().enumerate() {
         let line_number = i + 1;
-        let code = strip_line_comment(line);
+        let stripped = strip_line_comment(line);
+        let masked = mask_literals(stripped);
+        let code = masked.as_str();
 
         if keyword_re.is_match(code) {
             report_l3(filename, line_number, &mut diagnostics);
@@ -215,6 +217,37 @@ fn strip_line_comment(line: &str) -> &str {
         Some(idx) => &line[..idx],
         None => line,
     }
+}
+
+fn mask_literals(line: &str) -> String {
+    let mut result = String::with_capacity(line.len());
+    let mut chars = line.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '"' || c == '\'' {
+            let quote = c;
+            result.push(quote);
+            while let Some(&next) = chars.peek() {
+                chars.next();
+                if next == '\\' {
+                    result.push('x');
+                    if chars.peek().is_some() {
+                        chars.next();
+                        result.push('x');
+                    }
+                    continue;
+                }
+                if next == quote {
+                    result.push(quote);
+                    break;
+                }
+                result.push('x');
+            }
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }
 
 fn report_l4(filename: &str, line: usize, diagnostics: &mut Vec<Diagnostic>) {
