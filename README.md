@@ -2,7 +2,7 @@
 
 # epitech-style-checker
 
-**A native, Docker-free reimplementation of Epitech's Banana coding style checker — written in Rust.**
+**A native, Docker-free reimplementation of Epitech's Banana coding style checker, written in Rust.**
 
 [![CI](https://github.com/daniilsys/epitech-style-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/daniilsys/epitech-style-checker/actions/workflows/ci.yml)
 [![Release](https://github.com/daniilsys/epitech-style-checker/actions/workflows/release.yml/badge.svg)](https://github.com/daniilsys/epitech-style-checker/actions/workflows/release.yml)
@@ -18,16 +18,16 @@
 If you've ever waited on `coding-style.sh` to pull a multi-hundred-megabyte Docker image just to find out
 you forgot a space before a semicolon, you already know the problem.
 
-Epitech's official checker — nicknamed **Banana** — runs `lambdananas` and a set of Python `vera++` rules
+Epitech's official checker, nicknamed **Banana**, runs `lambdananas` and a set of Python `vera++` rules
 inside a Docker container. It works, but it's slow to start, occasionally crashes
 (`Segmentation fault`, yes, really), and gives you no feedback while you're actually writing code.
 
 **`epitech-style-checker`** re-implements the same rule set natively in Rust, using [`tree-sitter`](https://tree-sitter.github.io/tree-sitter/)
-for real C parsing. No Docker, no Python, no network — just a single static binary that runs instantly and
+for real C parsing. No Docker, no Python, no network: just a single static binary that runs instantly and
 can be wired into your editor, a pre-commit hook, or a shell alias.
 
 I'm an Epitech student myself, and I built this to actually understand the coding style rules well enough
-to automate them — and to stop losing ten seconds to Docker every time I want to check a two-line fix.
+to automate them, and to stop losing ten seconds to Docker every time I want to check a two-line fix.
 
 <details>
 <summary><strong>⚠️ A friendly disclaimer</strong></summary>
@@ -35,7 +35,7 @@ to automate them — and to stop losing ten seconds to Docker every time I want 
 
 This tool is a **best-effort reimplementation**, not an official Epitech product. Some rules (like
 "a function should do one thing" or "structures should be kept small") are inherently subjective and are
-**intentionally skipped** — see [below](#not-implemented-on-purpose). Others (like precise-typing or
+**intentionally skipped**; see [below](#not-implemented-on-purpose). Others (like precise-typing or
 static-usage suggestions) rely on heuristics that favor **fewer false positives over perfect recall**.
 
 **Always run the official Banana checker before a graded submission.** Use this tool as a fast local
@@ -65,7 +65,7 @@ with regex only where a real parse tree would be overkill.
 <td width="33%" valign="top">
 
 ### 📦 Portable
-Prebuilt binaries for Linux, macOS, and Windows on every [release](../../releases) — just download and run.
+Prebuilt binaries for Linux, macOS, and Windows on every [release](../../releases): just download and run.
 
 </td>
 </tr>
@@ -75,7 +75,7 @@ Prebuilt binaries for Linux, macOS, and Windows on every [release](../../release
 
 ## Installation
 
-### Option 1 — download a prebuilt binary
+### Option 1: download a prebuilt binary
 
 Grab the archive for your OS from the [latest release](../../releases/latest), extract it, and drop the
 binary somewhere on your `PATH`.
@@ -87,7 +87,7 @@ mv epitech-style-checker ~/my_scripts/   # or anywhere in your $PATH
 chmod +x ~/my_scripts/epitech-style-checker
 ```
 
-### Option 2 — build from source
+### Option 2: build from source
 
 ```bash
 git clone https://github.com/daniilsys/epitech-style-checker.git
@@ -131,12 +131,12 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 
 <div align="center">
 
-**40 / 43** rules implemented — every rule that can be checked mechanically and objectively.
+**40 / 43** rules implemented: every rule that can be checked mechanically and objectively.
 
 </div>
 
 <details>
-<summary><strong>C-A — Advanced</strong> (4/4)</summary>
+<summary><strong>C-A: Advanced</strong> (4/4)</summary>
 <br>
 
 | Rule | Description |
@@ -149,7 +149,7 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 </details>
 
 <details>
-<summary><strong>C-C — Control structures</strong> (3/3)</summary>
+<summary><strong>C-C: Control structures</strong> (3/3)</summary>
 <br>
 
 | Rule | Description |
@@ -161,7 +161,7 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 </details>
 
 <details>
-<summary><strong>C-F — Functions</strong> (8/9)</summary>
+<summary><strong>C-F: Functions</strong> (8/9)</summary>
 <br>
 
 | Rule | Description |
@@ -175,12 +175,12 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 | `C-F8` | No comments inside a function body |
 | `C-F9` | No nested functions |
 
-*`C-F1` (single-responsibility) is skipped — see [below](#not-implemented-on-purpose).*
+*`C-F1` (single-responsibility) is skipped; see [below](#not-implemented-on-purpose).*
 
 </details>
 
 <details>
-<summary><strong>C-G — Global scope</strong> (9/10)</summary>
+<summary><strong>C-G: Global scope</strong> (9/10)</summary>
 <br>
 
 | Rule | Description |
@@ -195,12 +195,12 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 | `C-G8` | No leading blank lines, at most one trailing blank line |
 | `C-G10` | No inline assembly |
 
-*`C-G9` (non-trivial constants should be named) is skipped — see [below](#not-implemented-on-purpose).*
+*`C-G9` (non-trivial constants should be named) is skipped; see [below](#not-implemented-on-purpose).*
 
 </details>
 
 <details>
-<summary><strong>C-H — Header files</strong> (3/3)</summary>
+<summary><strong>C-H: Header files</strong> (3/3)</summary>
 <br>
 
 | Rule | Description |
@@ -212,7 +212,7 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 </details>
 
 <details>
-<summary><strong>C-L — Layout inside a function</strong> (6/6)</summary>
+<summary><strong>C-L: Layout inside a function</strong> (6/6)</summary>
 <br>
 
 | Rule | Description |
@@ -227,7 +227,7 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 </details>
 
 <details>
-<summary><strong>C-O — File organization</strong> (4/4)</summary>
+<summary><strong>C-O: File organization</strong> (4/4)</summary>
 <br>
 
 | Rule | Description |
@@ -240,7 +240,7 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 </details>
 
 <details>
-<summary><strong>C-V — Variables and types</strong> (2/3)</summary>
+<summary><strong>C-V: Variables and types</strong> (2/3)</summary>
 <br>
 
 | Rule | Description |
@@ -248,12 +248,12 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 | `C-V1` | Identifiers in `snake_case`; typedefs end in `_t`; macros/enums `UPPER_SNAKE_CASE` |
 | `C-V3` | Pointer `*` attached to the variable name, not the type |
 
-*`C-V2` (structures should stay small/coherent) is skipped — see [below](#not-implemented-on-purpose).*
+*`C-V2` (structures should stay small/coherent) is skipped; see [below](#not-implemented-on-purpose).*
 
 </details>
 
 <details>
-<summary><strong>C-Z — Miscellaneous</strong> (1/1)</summary>
+<summary><strong>C-Z: Miscellaneous</strong> (1/1)</summary>
 <br>
 
 | Rule | Description |
@@ -267,11 +267,11 @@ Each line follows the same shape as Banana's own output: **file, line, rule code
 Three rules from the official coding style are **inherently subjective** and cannot be checked
 mechanically without producing constant false positives:
 
-- **`C-F1`** — a function should do "one thing" (single-responsibility principle)
-- **`C-G9`** — "non-trivial" constant values should be named
-- **`C-V2`** — structures should be "small" and group a "coherent" entity
+- **`C-F1`**: a function should do "one thing" (single-responsibility principle)
+- **`C-G9`**: "non-trivial" constant values should be named
+- **`C-V2`**: structures should be "small" and group a "coherent" entity
 
-These require human judgment. Use your own eyes — that's what Epitech's docs recommend too.
+These require human judgment. Use your own eyes, that's what Epitech's docs recommend too.
 
 ---
 
@@ -308,7 +308,7 @@ cargo test              # run the test suite
 cargo build --release   # optimized binary
 ```
 
-Pull requests welcome — especially bug reports with a minimal `.c` snippet that reproduces a false
+Pull requests welcome, especially bug reports with a minimal `.c` snippet that reproduces a false
 positive or false negative.
 
 ---
