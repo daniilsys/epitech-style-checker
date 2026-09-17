@@ -2,6 +2,7 @@
 name = "epitech-style-checker"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 tree-sitter = "0.24"
