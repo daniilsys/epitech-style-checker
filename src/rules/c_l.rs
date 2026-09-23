@@ -10,6 +10,7 @@ pub fn check(filename: &str, content: &str) -> Vec<Diagnostic> {
     diagnostics.extend(check_multiple_statements(filename, content));
     diagnostics.extend(check_line_indentation(filename, content));
     diagnostics.extend(check_spaces(filename, content));
+    diagnostics.extend(check_operator_spacing(filename, content));
     diagnostics.extend(check_brace_placement(filename, content));
     diagnostics.extend(check_variable_declarations(filename, content));
     diagnostics.extend(check_line_breaks(filename, content));
@@ -210,6 +211,45 @@ fn check_spaces(filename: &str, content: &str) -> Vec<Diagnostic> {
         }
     }
     diagnostics
+}
+
+fn check_operator_spacing(filename: &str, content: &str) -> Vec<Diagnostic> {
+    let mut diagnostics = Vec::new();
+    let tree = match parse(content) {
+        Some(t) => t,
+        None => return diagnostics,
+    };
+
+    let bytes = content.as_bytes();
+    let root = tree.root_node();
+    walk_operator_spacing(&root, bytes, filename, &mut diagnostics);
+    diagnostics
+}
+
+fn walk_operator_spacing(
+    node: &Node,
+    bytes: &[u8],
+    filename: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if node.kind() == "binary_expression" || node.kind() == "assignment_expression" {
+        if let Some(operator) = node.child_by_field_name("operator") {
+            let start = operator.start_byte();
+            let end = operator.end_byte();
+
+            let space_before = start == 0 || bytes[start - 1].is_ascii_whitespace();
+            let space_after = end >= bytes.len() || bytes[end].is_ascii_whitespace();
+
+            if !space_before || !space_after {
+                report_l3(filename, operator.start_position().row + 1, diagnostics);
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.children(&mut cursor) {
+        walk_operator_spacing(&child, bytes, filename, diagnostics);
+    }
 }
 
 fn strip_line_comment(line: &str) -> &str {
