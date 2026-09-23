@@ -23,7 +23,7 @@ dependencies = [
 
 [[package]]
 name = "epitech-style-checker"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "regex",
  "tree-sitter",
