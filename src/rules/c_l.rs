@@ -548,6 +548,41 @@ mod tests {
     }
 
     #[test]
+    fn c_l3_triggers_on_missing_space_around_division() {
+        let content = "int f(void)\n{\n    int a;\n    int b;\n\n    a = 10;\n    b = 3;\n    a = a/b;\n    return a;\n}\n";
+        let diags = check_operator_spacing("test.c", content);
+        assert!(diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_triggers_on_missing_space_around_modulo() {
+        let content = "int f(void)\n{\n    int a;\n    int b;\n\n    a = 10;\n    b = 3;\n    a = a%b;\n    return a;\n}\n";
+        let diags = check_operator_spacing("test.c", content);
+        assert!(diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_does_not_trigger_on_correctly_spaced_operators() {
+        let content = "int f(void)\n{\n    int a;\n    int b;\n\n    a = 10;\n    b = 3;\n    a = a / b;\n    a = a % b;\n    return a;\n}\n";
+        let diags = check_operator_spacing("test.c", content);
+        assert!(!diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_does_not_trigger_on_unary_operators() {
+        let content = "int f(void)\n{\n    int a;\n    int b;\n\n    a = 10;\n    b = -a;\n    return *&b;\n}\n";
+        let diags = check_operator_spacing("test.c", content);
+        assert!(!diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_does_not_trigger_on_multiline_operator() {
+        let content = "int f(int a, int b)\n{\n    if (a\n        && b) {\n        return 1;\n    }\n    return 0;\n}\n";
+        let diags = check_operator_spacing("test.c", content);
+        assert!(!diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
     fn c_l4_triggers_on_brace_not_on_own_line_for_function() {
         let content = "int f(void) {\n    return 0;\n}\n";
         let diags = check_brace_placement("test.c", content);
