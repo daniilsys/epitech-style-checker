@@ -242,7 +242,13 @@ fn check_pointer_attachments(filename: &str, content: &str) -> Vec<Diagnostic> {
             continue;
         }
 
-        if before != Some(b' ') && before != Some(b'(') && before != Some(b'[') {
+        let before_is_unary_operator = matches!(before, Some(b'-') | Some(b'!') | Some(b'~') | Some(b'&') | Some(b'+'));
+
+        if before != Some(b' ')
+            && before != Some(b'(')
+            && before != Some(b'[')
+            && !before_is_unary_operator
+        {
             diagnostics.push(make_v3(filename, line));
         } else if after == Some(b' ') {
             diagnostics.push(make_v3(filename, line));
@@ -331,6 +337,13 @@ mod tests {
     #[test]
     fn c_v3_does_not_trigger_on_star_attached_to_name() {
         let content = "int f(void)\n{\n    int *p;\n    return 0;\n}\n";
+        let diags = check_pointer_attachments("test.c", content);
+        assert!(!diags.iter().any(|d| d.code == "C-V3"));
+    }
+
+    #[test]
+    fn c_v3_does_not_trigger_on_dereference_after_unary_operator() {
+        let content = "void f(int *sign)\n{\n    *sign = -*sign;\n}\n";
         let diags = check_pointer_attachments("test.c", content);
         assert!(!diags.iter().any(|d| d.code == "C-V3"));
     }
