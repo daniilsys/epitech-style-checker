@@ -156,6 +156,7 @@ static PAREN_SPACE_RE: OnceLock<Regex> = OnceLock::new();
 static ARROW_SPACE_RE: OnceLock<Regex> = OnceLock::new();
 static SEMI_NO_SPACE_RE: OnceLock<Regex> = OnceLock::new();
 static DOUBLE_SPACE_RE: OnceLock<Regex> = OnceLock::new();
+static PAREN_BRACE_SPACE_RE: OnceLock<Regex> = OnceLock::new();
 
 fn report_l3(filename: &str, line: usize, diagnostics: &mut Vec<Diagnostic>) {
     diagnostics.push(Diagnostic {
@@ -181,6 +182,7 @@ fn check_spaces(filename: &str, content: &str) -> Vec<Diagnostic> {
     let arrow_re = ARROW_SPACE_RE.get_or_init(|| Regex::new(r"[ \t]->|->[ \t]").unwrap());
     let semi_re = SEMI_NO_SPACE_RE.get_or_init(|| Regex::new(r";[A-Za-z0-9_]").unwrap());
     let double_space_re = DOUBLE_SPACE_RE.get_or_init(|| Regex::new(r"\S(  +)\S").unwrap());
+    let paren_brace_re = PAREN_BRACE_SPACE_RE.get_or_init(|| Regex::new(r"\)\{").unwrap());
 
     for (i, line) in content.lines().enumerate() {
         let line_number = i + 1;
@@ -207,6 +209,9 @@ fn check_spaces(filename: &str, content: &str) -> Vec<Diagnostic> {
             report_l3(filename, line_number, &mut diagnostics);
         }
         if double_space_re.is_match(code.trim_start()) {
+            report_l3(filename, line_number, &mut diagnostics);
+        }
+        if paren_brace_re.is_match(code) {
             report_l3(filename, line_number, &mut diagnostics);
         }
     }
@@ -545,6 +550,20 @@ mod tests {
         let content = "int f(void)\n{\n    if (1) {\n        return 1;\n    }\n    return 0;\n}\n";
         let diags = check_spaces("test.c", content);
         assert!(!diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_triggers_on_brace_glued_to_closing_paren() {
+        let content = "int f(void)\n{\n    if (1){\n        return 1;\n    }\n    return 0;\n}\n";
+        let diags = check_spaces("test.c", content);
+        assert!(diags.iter().any(|d| d.code == "C-L3"));
+    }
+
+    #[test]
+    fn c_l3_triggers_on_while_brace_glued_to_closing_paren() {
+        let content = "int f(void)\n{\n    while (1){\n        return 1;\n    }\n    return 0;\n}\n";
+        let diags = check_spaces("test.c", content);
+        assert!(diags.iter().any(|d| d.code == "C-L3"));
     }
 
     #[test]
